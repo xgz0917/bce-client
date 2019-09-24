@@ -124,6 +124,7 @@ export function uploadByDropFile(dataTransferItem = [], {bucket, prefix}) {
                     },
                     err => { // eslint-disable-line no-loop-func
                         if (err) {
+                            console.log(err); 
                             return notification.error({
                                 message: `上传 ${entry.name} 错误`,
                                 description: err.message
@@ -166,8 +167,9 @@ export function uploadBySelectPaths(selectedPaths = [], {bucket, prefix}) {
                     },
                     err => { // eslint-disable-line no-loop-func
                         if (err) {
+                            console.log(err);
                             return notification.error({
-                                message: `上传 ${name} 错误`,
+                                message: `上传 ${name} ${JSON.stringify(err)} 错误`,
                                 description: err.message
                             });
                         }

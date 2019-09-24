@@ -2,6 +2,9 @@ import React from 'react';
 import {render} from 'react-dom';
 import {ipcRenderer} from 'electron';
 import {AppContainer} from 'react-hot-loader';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 import Root from './containers/Root';
 import {configureStore, history} from './store/configureStore';
@@ -9,9 +12,16 @@ import {DownloadStatus, UploadStatus} from './utils/TransferStatus';
 
 import './style/mixin.global.css';
 
+const cachePath = path.join(os.homedir(), '.bce', 'cache.json');
+
 export default class BceModule {
     static startup(containerNode) {
-        const cache = JSON.parse(localStorage.getItem('bos')) || {};
+        console.log(os.homedir());
+        if (!fs.existsSync(cachePath)) {
+            fs.writeFileSync(cachePath, '{}');
+        }
+        let cache = fs.readFileSync(cachePath, {encoding: 'utf-8'});
+        cache = cache ? JSON.parse(cache) : {};
 
         /**
          * 强退、崩溃可能导致数据有问题，修复下
@@ -39,7 +49,8 @@ export default class BceModule {
 
         store.subscribe(() => {
             const {uploads, downloads} = store.getState();
-            localStorage.setItem('bos', JSON.stringify({uploads, downloads}));
+            fs.writeFileSync(cachePath, JSON.stringify({uploads, downloads}));
+            //localStorage.setItem('bos', JSON.stringify({uploads, downloads}));
         });
 
         ipcRenderer.on('notify', (event, type, message) => {
